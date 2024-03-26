@@ -1,0 +1,51 @@
+model Deepfake
+
+class AudioData
+attributes
+        id:Integer
+	rawData:String
+ operations
+	split(chunk_duration: Integer)
+end
+
+class PreprocessedData
+attributes
+        id:Integer
+	processedData:String
+         
+operations
+    analyze()
+end
+
+class ClassificationResult
+attributes
+        id:Integer
+	isRealAudio:Boolean
+end
+
+association process between
+	AudioData[1..*] 	
+        PreprocessedData[1..1] 
+end
+
+association classifier between	
+        PreprocessedData[1..1]
+        ClassificationResult[1..1] 
+end
+
+constraints
+context AudioData
+inv checkRaw: self.rawData->size() > 0
+
+context PreprocessedData
+inv checkProcessed: self.processedData->size() > 0
+
+context AudioData::split(chunk_duration: Integer)
+pre:
+  self.rawData <> '' and chunk_duration > 0
+post:
+  rawData->size() > 0
+
+context PreprocessedData::analyze()
+pre:
+  self.processedData <> ''
